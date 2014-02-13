@@ -1,5 +1,5 @@
 1. The colspan attribute specifies how many columns should the row span.
-2. Style applied to <th> element with "Rank":
+2. Style applied to th element with "Rank":
 	(a) padding: 3px;
 	This is a css style element. This sets padding from all sides to 3px
 
