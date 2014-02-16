@@ -107,7 +107,21 @@
         .attr("y", function(d) { return bar_height/2; })
         .text(function(d) { return d["State"]; })
 
+              var color = d3.scale.linear()
+      .domain([2.6, 9.0])
+      .interpolate(d3.interpolateRgb)
+      .range(["orangered", "silver"])
+bars
+      .style("fill", function(d){
+            console.log("color " + d)
+            return color(d["Rate"])
+          })
+
     });
+
+
+
+
 
     function reorder(){
       if (button == 1){
@@ -178,9 +192,11 @@
                   rateSort = 1
                 }
           }
-             
+      
+
 
       }
+
 
 
 d3.selectAll(".stateInput").on("click", function(){
