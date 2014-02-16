@@ -1,0 +1,5 @@
+1, The bar chart is not useful in its current form because there are no axes. We dont know what quantities are supposed to be measusered. We also dont know what each of the individual bar chart represents. Furthermore the bar charts are very close together in width which can lead to confusion when distinguishing between different elements. We could improve that by using a better scale to plot the bar chart. 
+
+2. The g element is used to group together elements in svgs. Also every transformation that is applied to a g element also gets applied to it children. The outer most element keeps the whole chart including the title grouped together as one element. The middle g is specifically for holding together the bars in one group. The inner most g is for individual bars i-e each bar has its own g element.
+
+3. No the appearance of the elements is the same no matter what order you add them in.

@@ -11,11 +11,42 @@
         font: 10px sans-serif;
     }
   </style>
+    <h1> Unemplyement Rates for States</h1>
+    <label class = "stateInput" style = "position: absolute"><input type="radio" name="order" value="state"> State</label>
+<label class = "rateInput" style = "position: realtive; float: right"><input  type="radio" name="order" value="rate" checked> Rate</label>
 </head>
 <body>
-  <script type="text/javascript">
 
-    var margin = {top: 50, bottom: 10, left:300, right: 40};
+
+  <script type="text/javascript">
+    var button = 0;
+    stateSort = 0;
+    rateSort = 0;
+
+
+      function rateCompareA(a, b) {
+        if (a["Rate"] > b["Rate"]){
+          return 1;
+        }else if (a["Rate"] == b["Rate"]){
+          return d3.ascending(a["State"], b["State"]);
+        }else{
+          return -1;
+
+        } 
+      }
+      function rateCompareD(a, b) {
+        if (a["Rate"] < b["Rate"]){
+          return 1;
+        }else if (a["Rate"] == b["Rate"]){
+          return d3.descending(a["State"], b["State"]);
+        }else{
+          return -1;
+
+        } 
+      }
+
+
+    var margin = {top: 100, bottom: 10, left:300, right: 40};
     var width = 900 - margin.left - margin.right;
     var height = 900 - margin.top - margin.bottom;
 
@@ -33,10 +64,16 @@
     var g = svg.append("g")
       .attr("transform", "translate("+margin.left+","+margin.top+")");
 
+    
+    
+
+
     d3.tsv("unemp_states_us_nov_2013.tsv", function(data) {
 
       var max = d3.max(data, function(d) { return d.Rate; } );
       var min = 0;
+
+      console.log(data);
 
       xScale.domain([min, max]);
       yScale.domain(data.map(state));
@@ -46,14 +83,116 @@
         .data(data)
       .enter()
         .append("g")
-        .attr("transform", function(d, i) { return "translate(0, " + yScale(d.State) +")"; });
+        .attr("transform", function(d, i) { return "translate(0, " + yScale(d.State) +")"; })
+        .attr ("class", "groups");
+
+
+
 
       var bars = groups
         .append("rect")
         .attr("width", function(d) { return xScale(d.Rate); })
-        .attr("height", bar_height);
+        .attr("height", bar_height)
+        ;
+
+
+        groups.append("text")
+        .attr("x", function(d) { return xScale(d.Rate) - 20; })
+        .attr("y", function(d) { return bar_height/2 + 3; })
+        .text(function(d) { return d["Rate"]; })
+        .style("color", "white")
+
+        groups.append("text")
+        .attr("x", function(d) { return -130 ; })
+        .attr("y", function(d) { return bar_height/2; })
+        .text(function(d) { return d["State"]; })
 
     });
+
+    function reorder(){
+      if (button == 1){
+        if (stateSort == 0){
+                  d3.selectAll(".groups")
+                 .sort(function(a, b) {
+                      return d3.ascending(a["State"], b["State"]);
+                  })
+                 .transition()
+                 .duration(750)
+                 .delay(function(d, i) { return i * 10; })
+                 .attr("transform", function(d, i) { return "translate("+ 0 +", "+ i * 15 +")"; })
+                stateSort = 1
+                }else if (stateSort == 1){
+                  d3.selectAll(".groups")
+                 .sort(function(a, b) {
+                      return d3.descending(a["State"], b["State"]);
+                  })
+                 .transition()
+                 .duration(750)
+                 .delay(function(d, i) { return i * 10; })
+                 .attr("transform", function(d, i) { return "translate("+ 0 +", "+ i * 15 +")"; })
+                 stateSort = 2
+                }else if (stateSort == 2){
+                  d3.selectAll(".groups")
+                 .sort(function(a, b) {
+                      return d3.ascending(a["State"], b["State"]);
+                  })
+                 .transition()
+                 .duration(750)
+                 .delay(function(d, i) { return i * 10; })
+                 .attr("transform", function(d, i) { return "translate("+ 0 +", "+ i * 15 +")"; })
+                  //ascending
+                  stateSort = 1
+                }
+            }
+        if (button == 2){
+ if (rateSort == 0){
+                  d3.selectAll(".groups")
+                 .sort(function(a, b) {
+                      return rateCompareA(a, b);
+                  })
+                 .transition()
+                 .duration(750)
+                 .delay(function(d, i) { return i * 10; })
+                 .attr("transform", function(d, i) { return "translate("+ 0 +", "+ i * 15 +")"; })
+                rateSort = 1
+                }else if (rateSort == 1){
+                  d3.selectAll(".groups")
+                 .sort(function(a, b) {
+                      return rateCompareD(a, b);
+                  })
+                 .transition()
+                 .duration(750)
+                 .delay(function(d, i) { return i * 10; })
+                 .attr("transform", function(d, i) { return "translate("+ 0 +", "+ i * 15 +")"; })
+                 rateSort = 2
+                }else if (rateSort == 2){
+                  d3.selectAll(".groups")
+                 .sort(function(a, b) {
+                      return rateCompareA(a, b);
+                  })
+                 .transition()
+                 .duration(750)
+                 .delay(function(d, i) { return i * 10; })
+                 .attr("transform", function(d, i) { return "translate("+ 0 +", "+ i * 15 +")"; })
+                  //ascending
+                  rateSort = 1
+                }
+          }
+             
+
+      }
+
+
+d3.selectAll(".stateInput").on("click", function(){
+  button = 1;
+  reorder();
+});
+
+d3.selectAll(".rateInput").on("click", function(){
+  button = 2;
+  reorder();
+});
+
   </script>
 </body>
 </html>
