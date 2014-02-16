@@ -5,32 +5,274 @@
   <title>CS171 Homework 1</title>
 
   <style type="text/css">
-  /* YOUR CSS */
+  .highlighted{
+    background-color: #F4EE74;
+  }
+  .dark{
+    background-color: 
+  }
+  .light{
+    background-color: 
+  }
   </style>
 </head>
 <body>
   <script src="http://d3js.org/d3.v3.min.js"></script>
   <script>
-  d3.tsv("unemp_states_us_nov_2013.tsv", function(error, data){
+  d3.text("unemp_states_us_nov_2013.tsv", function(unparsedData){
 
-      var table = d3.select("body").append("table"),
-      tbody = table.append("tbody");
+      var rateSort = 1
+      var stateSort = 0
+      var rankSort = 0
 
-      var rows = tbody.selectAll("tr")
+
+
+      function rateCompareA(a, b) {
+        if (a[2] > b[2]){
+          return 1;
+        }else if (a[2] == b[2]){
+          return d3.ascending(a[1], b[1]);
+        }else{
+          return -1;
+
+        } 
+      }
+      function rateCompareD(a, b) {
+        if (a[2] < b[2]){
+          return 1;
+        }else if (a[2] == b[2]){
+          return d3.descending(a[1], b[1]);
+        }else{
+          return -1;
+
+        } 
+      }
+      function zebraColor(){
+        tbody.selectAll("tr")
+        .style("background-color", function(d, i){
+        console.log("ZEBRA")
+        if (i % 2 == 0){
+          return "#EEEEEE";  
+        }else{
+          return "white";
+        }
+        
+      })};
+      var data = d3.tsv.parseRows(unparsedData)
+      //console.log(data)
+      var headers = data[0]
+
+      data.splice(0, 1)
+
+      var heading = d3.select("body")
+      .append("h1")
+      .text("Unemployment Rates for States")
+
+
+      var table = d3.select("body").append("table").attr("border" , "1px").style({"border-spacing": "0px", "margin-left": "75px"});
+      var caption = table.append("caption").html(function(d){
+        return "Unemployment Rates for States<br>Monthly Rankings<br>Seasonally Adjusted<br>Dec. 2013<sup>p</sup><br>"
+      });
+
+      caption.style({'border': '1'});
+
+      var thead = table.append("thead"); 
+      var tbody = table.append("tbody");
+      var rows;
+
+      var color = d3.scale.linear()
+      .domain([0, tbody.selectAll("tr")[0].length-1])
+      .interpolate(d3.interpolateRgb)
+      .range(["orangered", "silver"])
+
+      console.log(tbody.selectAll("tr")[0].length-1)
+      console.log(color(10))
+      console.log(color(150))
+
+      
+      var headRow = thead.append("tr").attr("id", "row0");
+      var firstRow = headRow.selectAll("th")
+      .data(headers)
+      .enter()
+      .append("th")
+      .on("click", function(d, i){
+            if (d === "Rank") {
+                if (rankSort == 0){
+                  rows = tbody.selectAll("tr")
+                  .sort(function(a, b) {
+                      return rateCompare(a, b);
+                  });
+                  rankSort = 1
+                }else if (rankSort == 1){
+                  rows = tbody.selectAll("tr")
+                  .sort(function(a, b) {
+                      return rateCompare(a, b);
+                  });
+                  //descending
+                  rankSort = 2
+                }else if (rankSort == 2){
+                  rows = tbody.selectAll("tr")
+                  .sort(function(a, b) {
+                      return rateCompare(a, b);
+                  });
+                  //ascending
+                  rankSort = 1
+                }
+            } else if(d === "State") {
+                if (stateSort == 0){
+                  rows = tbody.selectAll("tr")
+                  .sort(function(a, b) {
+                      return d3.ascending(a[1], b[1]);
+                  });
+                  stateSort = 1
+                }else if (stateSort == 1){
+                  rows = tbody.selectAll("tr")
+                  .sort(function(a, b) {
+                      return d3.descending(a[1], b[1]);
+                  });
+                  //descending
+                  stateSort = 2
+                }else if (stateSort == 2){
+                  rows = tbody.selectAll("tr")
+                  .sort(function(a, b) {
+                      return d3.ascending(a[1], b[1]);
+                  });
+                  //ascending
+                  stateSort = 1
+                }
+            }else if (d === "Rate") {
+                if (rateSort == 0){
+                  rows = tbody.selectAll("tr")
+                  .sort(function(a, b) {
+                      return rateCompareA(a, b);
+                  });
+                  rateSort = 1
+                }else if (rateSort == 1){
+                  rows = tbody.selectAll("tr")
+                  .sort(function(a, b) {
+                      return rateCompareD(a, b);
+                  });
+                  //descending
+                  rateSort = 2
+                }else if (rateSort == 2){
+                  rows = tbody.selectAll("tr")
+                  .sort(function(a, b) {
+                      return rateCompareA(a, b);
+                  });
+                  //ascending
+                  rateSort = 1
+                }
+            }
+            
+            d3.select(this).event("onmouseover");
+            //var rows = tbody.selectAll("tr").sort(sort);
+      })
+      .on("mouseover", function(d, i){
+        if (d == "State"){
+          
+          if (stateSort == 0){
+            d3.select(this).style("cursor", "s-resize")
+          }else if (stateSort == 1){
+            d3.select(this).style("cursor", "e-resize")
+          }else if (stateSort == 2){
+            d3.select(this).style("cursor", "s-resize")
+          }
+        }else if (d == "Rate"){
+          if (rateSort == 0){
+            d3.select(this).style("cursor", "s-resize")
+          }else if (rateSort == 1){
+            d3.select(this).style("cursor", "e-resize")
+          }else if (rateSort == 2){
+            d3.select(this).style("cursor", "s-resize")
+          }
+        }
+      })
+      .attr("id", function(d, i){
+        return d;
+      })
+      .text(function(d){
+        return d;
+      })
+      
+      rows = tbody.selectAll("tr")
       .data(data)
       .enter()
-      .append("tr");
+      .append("tr")
+      .attr("id", function(d, i){
+        var num = i + 1;
+        return "row" + num;
+      })
+      .on("mouseover", function(d, i){
+        d3.select(this).style("background-color", "#F4EE74")
+
+      })
+      .on("mouseout", function(){
+        zebraColor();  
+      });
+      zebraColor();
+
+      rows = tbody.selectAll("tr")
+                  .sort(function(a, b) {
+                      return rateCompareA(a, b);
+                  });
+      rateSort = 1
+
 
       var cells = rows.selectAll("td")
-      .data(function(row) {
-        return d3.range(Object.keys(row).length).map(function(column, i) {
-          return row[Object.keys(row)[i]];
+      .data(function(row, i) {
+        //console.log(d3.range(Object.keys(row).length))
+
+          return d3.range(Object.keys(row).length).map(function(column, i) {
+            return row[Object.keys(row)[i]];
           });
-        })
+        
+      })
       .enter()
       .append("td")
-      .text(function(d) { return d; });
-      });
+      .attr("class", function (d, i){
+        if (i % 3 == 0){
+          return "column1"
+        }else if (i % 3 == 1){
+          return "column2"
+        }else if (i % 3 == 2){
+          return "column3"
+        }
+      })
+      .text(function(d) { return d; })
+      .on("mouseover", function(d, i){
+          var current = d3.select(this);
+          var className = current.attr("class");
+          var customSelector =  "." + className 
+          console.log(customSelector); 
+          d3.selectAll(customSelector)
+          .style("background-color", "#F4EE74")
+      })
+      .on("mouseout", function(){
+        var current = d3.select(this);
+          var className = current.attr("class");
+          var customSelector =  "." + className 
+          console.log(customSelector); 
+          d3.selectAll(customSelector)
+          .style("background-color", "inherit")
+        zebraColor(); 
+      })
+
+
+
+      //console.log(headers)
+
+      
+  });
+
+      // var headers = ["Rank", "State", "Rate"];
+      // console.log(headers)
+
+      // var firstRow = d3.select("body").select("tbody").select("tr")
+      // .data(headers)
+      // .enter()
+      // .append("th");
+      
+
   </script>
 </body>
 </html>
